@@ -268,8 +268,10 @@ prepare_token_request(Client, Opts) ->
 base_request(#client{grant_type = <<"azure_client_credentials">>}) ->
   #{headers => [], body => [{<<"grant_type">>, <<"client_credentials">>}]};
 % https://github.com/peburrows/goth/blob/master/lib/goth/client.ex#L69
-base_request(#client{grant_type = <<"gcp_client_credentials">>, id = Id, secret = Secret}) ->
-  #{headers => [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}], body => [{<<"grant_type">>, <<"refresh_token">>}, {<<"refresh_token">>, <<"sofresh">>}, {<<"client_id">>, Id}, {<<client_secret>>, Secret}]};
+base_request(#client{grant_type = <<"gcp_client_credentials">>} = Client) ->
+  #client{id = Id, secret = Secret} = Client,
+  #{headers => [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}],
+    body => [{<<"grant_type">>, <<"refresh_token">>}, {<<"refresh_token">>, <<"sofresh">>}, {<<"client_id">>, Id}, {<<"client_secret">>, Secret}]};
 base_request(#client{grant_type = GrantType}) ->
   #{headers => [], body => [{<<"grant_type">>, GrantType}]}.
 
