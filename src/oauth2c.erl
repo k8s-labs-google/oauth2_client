@@ -225,6 +225,8 @@ prepare_token_request(Client, Opts) ->
 
 base_request(#client{grant_type = <<"azure_client_credentials">>}) ->
   #{headers => [], body => [{<<"grant_type">>, <<"client_credentials">>}]};
+base_request(#client{grant_type = <<"gcp_client_credentials">>}) ->
+  #{headers => [], body => [{<<"grant_type">>, <<"urn:ietf:params:oauth:grant-type:jwt-bearer">>}]};
 base_request(#client{grant_type = GrantType}) ->
   #{headers => [], body => [{<<"grant_type">>, GrantType}]}.
 
@@ -263,6 +265,10 @@ add_fields(Request, #client{grant_type = <<"azure_client_credentials">>,
                             scope = Scope}) ->
   #{body := Body} = Request,
   Request#{body => [{<<"resource">>, Scope} | Body]};
+add_fields(Request, #client{grant_type = <<"gcp_client_credentials">>,
+                            scope = Scope}) ->
+  #{body := Body} = Request,
+  Request#{body => [{<<"resource">>, Scope} | Body]};
 add_fields(Request, #client{scope = Scope}) ->
   #{body := Body} = Request,
   Request#{body => [{<<"scope">>, Scope} | Body]}.
@@ -280,6 +286,10 @@ do_request(Method, Type, Url, Expect, Headers0, Body, Options, Client) ->
   {restc:request(Method, Type, Url, Expect, Headers, Body, Options), Client}.
 
 add_auth_header(Headers, #client{grant_type = <<"azure_client_credentials">>,
+                                 access_token = AccessToken}) ->
+  AH = {<<"Authorization">>, <<"bearer ", AccessToken/binary>>},
+  [AH | proplists:delete(<<"Authorization">>, Headers)];
+add_auth_header(Headers, #client{grant_type = <<"gcp_client_credentials">>,
                                  access_token = AccessToken}) ->
   AH = {<<"Authorization">>, <<"bearer ", AccessToken/binary>>},
   [AH | proplists:delete(<<"Authorization">>, Headers)];
