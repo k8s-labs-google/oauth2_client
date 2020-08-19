@@ -223,11 +223,53 @@ prepare_token_request(Client, Opts) ->
   Request0 = add_client(BaseRequest, Client, Opts),
   add_fields(Request0, Client).
 
+
+  % def jwt(info, opts \\ [])
+  % def jwt(scope, iat) when is_integer(iat), do: jwt(scope, iat: iat)
+  % def jwt(scope, opts) when is_binary(scope), do: jwt({:default, scope}, opts)
+
+  % def jwt({account, scope}, opts) when is_list(opts) do
+  %   {:ok, key} = Config.get(account, :private_key)
+  %   signer = Joken.Signer.create("RS256", %{"pem" => key})
+
+  %   {:ok, jwt} =
+  %     claims({account, scope}, opts)
+  %     |> Joken.Signer.sign(signer)
+
+  %   jwt
+  % end
+jwt({account, scope}, opts) ->
+  {ok, key } = Config.get(account, private_key)
+
+  {ok, jwt}.
+
+  % def get_access_token(:oauth_refresh, {account, scope}, _opts) do
+  %   {:ok, refresh_token} = Config.get(:refresh_token)
+  %   {:ok, client_id} = Config.get(:client_id)
+  %   {:ok, client_secret} = Config.get(:client_secret)
+  %   endpoint = Application.get_env(:goth, :endpoint, "https://www.googleapis.com")
+  %   url = "#{endpoint}/oauth2/v4/token"
+
+  %   body =
+  %     {:form,
+  %      [
+  %        grant_type: "refresh_token",
+  %        refresh_token: refresh_token,
+  %        client_id: client_id,
+  %        client_secret: client_secret
+  %      ]}
+
+  %   headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
+
+  %   HTTPoison.post(url, body, headers)
+  %   |> handle_response({account, scope})
+  % end
+
 base_request(#client{grant_type = <<"azure_client_credentials">>}) ->
   #{headers => [], body => [{<<"grant_type">>, <<"client_credentials">>}]};
 % https://github.com/peburrows/goth/blob/master/lib/goth/client.ex#L69
-base_request(#client{grant_type = <<"gcp_client_credentials">>}) ->
-  #{headers => [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}], body => [{<<"grant_type">>, <<"urn:ietf:params:oauth:grant-type:jwt-bearer">>}]};
+base_request(#client{grant_type = <<"gcp_client_credentials">>, id = Id, secret = Secret}) ->
+  #{headers => [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}], body => [{<<"grant_type">>, <<"refresh_token">>}, {<<"refresh_token">>, <<"sofresh">>} {<<"client_id">>, Id}, {<<client_secret>>, Secret}]};
 base_request(#client{grant_type = GrantType}) ->
   #{headers => [], body => [{<<"grant_type">>, GrantType}]}.
 
