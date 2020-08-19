@@ -225,8 +225,9 @@ prepare_token_request(Client, Opts) ->
 
 base_request(#client{grant_type = <<"azure_client_credentials">>}) ->
   #{headers => [], body => [{<<"grant_type">>, <<"client_credentials">>}]};
+% https://github.com/peburrows/goth/blob/master/lib/goth/client.ex#L69
 base_request(#client{grant_type = <<"gcp_client_credentials">>}) ->
-  #{headers => [], body => [{<<"grant_type">>, <<"urn:ietf:params:oauth:grant-type:jwt-bearer">>}]};
+  #{headers => [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}], body => [{<<"grant_type">>, <<"urn:ietf:params:oauth:grant-type:jwt-bearer">>}]};
 base_request(#client{grant_type = GrantType}) ->
   #{headers => [], body => [{<<"grant_type">>, GrantType}]}.
 
