@@ -238,10 +238,10 @@ prepare_token_request(Client, Opts) ->
 
   %   jwt
   % end
-jwt({account, scope}, opts) ->
-  {ok, key } = Config.get(account, private_key)
+% jwt({account, scope}, opts) ->
+%   {ok, key } = Config.get(account, private_key)
 
-  {ok, jwt}.
+%   {ok, jwt}.
 
   % def get_access_token(:oauth_refresh, {account, scope}, _opts) do
   %   {:ok, refresh_token} = Config.get(:refresh_token)
