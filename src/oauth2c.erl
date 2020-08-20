@@ -298,7 +298,7 @@ jwt(Client) ->
   #client{ credentials_path = CredentialsPath } = Client,
   {ok, File} = file:read_file(CredentialsPath),
   % TODO: stoare in state, don't read during every request
-  Data = jiffy:decode(File, { return_maps }),
+  Data = jiffy:decode(File, [ return_maps ]),
   % signer = Joken.Signer.create("RS256", {"pem" => Secret})
   #credentials_file{ private_key = PrivateKey} = Data,
   Signer = public_key:pem_entry_encode("RS256", PrivateKey),
