@@ -273,9 +273,9 @@ claims(Data) ->
   #{
     "iss" => ClientEmail,
     "scope" => Scope,
-    "aud" => "",
-    "iat" => iat,
-    "exp" => iat
+    "aud" => "https://www.googleapis.com/oauth2/v4/token",
+    "iat" => undefined,
+    "exp" => undefined
   }.
 
   % def jwt(info, opts \\ [])
@@ -304,12 +304,9 @@ jwt(Client) ->
   PrivateKey = maps:get(<<"private_key">>, Data),
   % using records would be nice
   % #credentials_file{ <<"private_key">> = PrivateKey } = Data,
-  Signer = public_key:pem_entry_encode("RS256", PrivateKey),
-  io:fwrite(Signer),
-  % get the claims, pass them to the signer, get the jwt back
   Claims = claims(Data),
-  {ok, jwt} = public_key:pem_encode([Claims]),
-  jwt.
+  {ok, Token} = jwt:encode(<<"RS256">>, Claims, PrivateKey),
+  Token.
 
   % def get_access_token(:oauth_refresh, {account, scope}, _opts) do
   %   {:ok, refresh_token} = Config.get(:refresh_token)

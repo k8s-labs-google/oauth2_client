@@ -34,7 +34,8 @@
                   kernel,
                   stdlib,
                   inets,
-                  restc
+                  restc,
+                  jwt
                  ]},
   {env, []},
   {modules, []},
