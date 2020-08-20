@@ -32,6 +32,7 @@
 -export([retrieve_access_token/4]).
 -export([retrieve_access_token/5]).
 -export([retrieve_access_token/6]).
+-export([retrieve_gcp_access_token/3]).
 -export([retrieve_gcp_access_token/4]).
 
 -export([request/3]).
@@ -105,6 +106,14 @@ retrieve_access_token(Type, Url, ID, Secret, Scope, Options) ->
                   , scope     = Scope
                   },
   do_retrieve_access_token(Client, Options).
+
+-spec retrieve_gcp_access_token(Type, URL, CREDENTIALS_PATH) ->
+  {ok, Headers::headers(), client()} | {error, Reason :: binary()} when
+  Type    :: at_type(),
+  URL     :: url(),
+  CREDENTIALS_PATH      :: binary().
+retrieve_gcp_access_token(Type, Url, CREDENTIALS_PATH) ->
+  retrieve_gcp_access_token(Type, Url, CREDENTIALS_PATH, []).
 
 -spec retrieve_gcp_access_token(Type, URL, CREDENTIALS_PATH, Options) ->
     {ok, Headers::headers(), client()} | {error, Reason :: binary()} when
