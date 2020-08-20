@@ -32,6 +32,7 @@
 -export([retrieve_access_token/4]).
 -export([retrieve_access_token/5]).
 -export([retrieve_access_token/6]).
+-export([retrieve_gcp_access_token/4]).
 
 -export([request/3]).
 -export([request/4]).
@@ -102,6 +103,19 @@ retrieve_access_token(Type, Url, ID, Secret, Scope, Options) ->
                   , id        = ID
                   , secret    = Secret
                   , scope     = Scope
+                  },
+  do_retrieve_access_token(Client, Options).
+
+-spec retrieve_gcp_access_token(Type, URL, CREDENTIALS_PATH, Options) ->
+    {ok, Headers::headers(), client()} | {error, Reason :: binary()} when
+    Type    :: at_type(),
+    URL     :: url(),
+    CREDENTIALS_PATH      :: binary(),
+    Options :: options().
+retrieve_gcp_access_token(Type, Url, CREDENTIALS_PATH, Options) ->
+  Client = #client{ grant_type = Type
+                  , auth_url  = Url
+                  , credentials_path        = CREDENTIALS_PATH
                   },
   do_retrieve_access_token(Client, Options).
 
@@ -224,6 +238,36 @@ prepare_token_request(Client, Opts) ->
   add_fields(Request0, Client).
 
 
+% def claims({account, scope}, opts) when is_list(opts) do
+% %{iat: iat, sub: sub} = destruct_opts(opts)
+% {:ok, email} = Config.get(account, :client_email)
+
+% c = %{
+%   "iss" => email,
+%   "scope" => scope,
+%   "aud" => "https://www.googleapis.com/oauth2/v4/token",
+%   "iat" => iat,
+%   "exp" => iat + 10
+% }
+
+% if sub do
+%   Map.put(c, "sub", sub)
+% else
+%   c
+% end
+% end
+
+claims(Data) ->
+  #credentials_file{ client_email = ClientEmail } = Data,
+  Scope = "trace",
+  #{
+    "iss" => ClientEmail,
+    "scope" => Scope,
+    "aud" => "",
+    "iat" => iat,
+    "exp" => iat
+  }.
+
   % def jwt(info, opts \\ [])
   % def jwt(scope, iat) when is_integer(iat), do: jwt(scope, iat: iat)
   % def jwt(scope, opts) when is_binary(scope), do: jwt({:default, scope}, opts)
@@ -238,10 +282,22 @@ prepare_token_request(Client, Opts) ->
 
   %   jwt
   % end
-% jwt({account, scope}, opts) ->
-%   {ok, key } = Config.get(account, private_key)
 
-%   {ok, jwt}.
+% http://erlang.org/documentation/doc-5.8.4/lib/public_key-0.12/doc/html/using_public_key.html
+
+jwt(Client) ->
+  #client{ credentials_path = CredentialsPath } = Client,
+  {ok, File} = file:read_file(CredentialsPath),
+  % TODO: stoare in state, don't read during every request
+  Data = jiffy:decode(File, { return_maps }),
+  % signer = Joken.Signer.create("RS256", {"pem" => Secret})
+  #credentials_file{ private_key = PrivateKey} = Data,
+  Signer = public_key:pem_entry_encode("RS256", PrivateKey),
+  io:fwrite(Signer),
+  % get the claims, pass them to the signer, get the jwt back
+  Claims = claims(Data),
+  {ok, jwt} = public_key:pem_encode([Claims]),
+  jwt.
 
   % def get_access_token(:oauth_refresh, {account, scope}, _opts) do
   %   {:ok, refresh_token} = Config.get(:refresh_token)
@@ -268,10 +324,13 @@ prepare_token_request(Client, Opts) ->
 base_request(#client{grant_type = <<"azure_client_credentials">>}) ->
   #{headers => [], body => [{<<"grant_type">>, <<"client_credentials">>}]};
 % https://github.com/peburrows/goth/blob/master/lib/goth/client.ex#L69
+% base_request(#client{grant_type = <<"gcp_client_credentials">>} = Client) ->
+%   #client{id = Id, secret = Secret} = Client,
+%   #{headers => [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}],
+%     body => [{<<"grant_type">>, <<"refresh_token">>}, {<<"refresh_token">>, <<"sofresh">>}, {<<"client_id">>, Id}, {<<"client_secret">>, Secret}]};
 base_request(#client{grant_type = <<"gcp_client_credentials">>} = Client) ->
-  #client{id = Id, secret = Secret} = Client,
   #{headers => [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}],
-    body => [{<<"grant_type">>, <<"refresh_token">>}, {<<"refresh_token">>, <<"sofresh">>}, {<<"client_id">>, Id}, {<<"client_secret">>, Secret}]};
+    body => [{<<"grant_type">>, <<"urn:ietf:params:oauth:grant-type:jwt-bearer">>}, {<<"assertion">>, jwt(Client)}]};
 base_request(#client{grant_type = GrantType}) ->
   #{headers => [], body => [{<<"grant_type">>, GrantType}]}.
 

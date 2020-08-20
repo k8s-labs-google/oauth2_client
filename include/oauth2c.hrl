@@ -6,8 +6,14 @@
                  id            = undefined :: binary()     | undefined,
                  secret        = undefined :: binary()     | undefined,
                  scope         = undefined :: binary()     | undefined,
-                 expire_time   = undefined :: integer()    | undefined
+                 expire_time   = undefined :: integer()    | undefined,
+                 credentials_path = undefined :: binary()  | undefined
                 }).
+
+-record(credentials_file, {client_email    = undefined :: binary()     | undefined,
+        private_key      = undefined :: binary()     | undefined,
+        credentials_path = undefined :: binary()  | undefined
+        }).
 
 -type method()         :: head    |
                           get     |
