@@ -267,7 +267,8 @@ prepare_token_request(Client, Opts) ->
 % end
 
 claims(Data) ->
-  #credentials_file{ client_email = ClientEmail } = Data,
+  % #credentials_file{ client_email = ClientEmail } = Data,
+  ClientEmail = maps:get(<<"client_email">>, Data),
   Scope = "trace",
   #{
     "iss" => ClientEmail,
@@ -300,7 +301,9 @@ jwt(Client) ->
   % TODO: stoare in state, don't read during every request
   Data = jiffy:decode(File, [ return_maps ]),
   % signer = Joken.Signer.create("RS256", {"pem" => Secret})
-  #credentials_file{ private_key = PrivateKey} = Data,
+  PrivateKey = maps:get(<<"private_key">>, Data),
+  % using records would be nice
+  % #credentials_file{ <<"private_key">> = PrivateKey } = Data,
   Signer = public_key:pem_entry_encode("RS256", PrivateKey),
   io:fwrite(Signer),
   % get the claims, pass them to the signer, get the jwt back
