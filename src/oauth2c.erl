@@ -270,11 +270,11 @@ prepare_token_request(Client, Opts) ->
 claims(Data) ->
   % #credentials_file{ client_email = ClientEmail } = Data,
   ClientEmail = maps:get(<<"client_email">>, Data),
-  Scope = "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/trace.append",
+  Scope = <<"https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/trace.append">>,
   #{
     <<"iss">> => ClientEmail,
     <<"scope">> => Scope,
-    <<"aud">> => "https://www.googleapis.com/oauth2/v4/token"
+    <<"aud">> => <<"https://www.googleapis.com/oauth2/v4/token">>
     % <<"iat">> => erlang:system_time(),
     % <<"exp">> => erlang:system_time() + 10
   }.
