@@ -385,10 +385,10 @@ add_fields(Request, #client{grant_type = <<"azure_client_credentials">>,
                             scope = Scope}) ->
   #{body := Body} = Request,
   Request#{body => [{<<"resource">>, Scope} | Body]};
-add_fields(Request, #client{grant_type = <<"gcp_client_credentials">>,
-                            scope = Scope}) ->
-  #{body := Body} = Request,
-  Request#{body => [{<<"resource">>, Scope} | Body]};
+add_fields(Request, #client{grant_type = <<"gcp_client_credentials">>}) ->
+  % #{body := Body} = Request,
+  % Request#{body => [{<<"resource">>, Scope} | Body]};
+  Request;
 add_fields(Request, #client{scope = Scope}) ->
   #{body := Body} = Request,
   Request#{body => [{<<"scope">>, Scope} | Body]}.
