@@ -210,6 +210,7 @@ ensure_client_has_access_token(Client0, Options) ->
 do_retrieve_access_token(Client, Opts) ->
   #{headers := RequestHeaders,
     body := RequestBody} = prepare_token_request(Client, Opts),
+  io:fwrite(RequestBody),
   case restc:request(post, percent, Client#client.auth_url,
                      [200], RequestHeaders, RequestBody, Opts)
   of
