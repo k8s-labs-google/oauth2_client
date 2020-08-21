@@ -215,7 +215,7 @@ do_retrieve_access_token(Client, Opts) ->
                      [200], RequestHeaders, RequestBody, Opts)
   of
     {ok, _, Headers, Body} ->
-      io:fwrite(Body),
+      % io:fwrite(Body),
       AccessToken = proplists:get_value(<<"access_token">>, Body),
       TokenType = proplists:get_value(<<"token_type">>, Body, ""),
       ExpireTime =
