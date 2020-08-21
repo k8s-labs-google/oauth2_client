@@ -343,7 +343,7 @@ base_request(#client{grant_type = <<"azure_client_credentials">>}) ->
 %     body => [{<<"grant_type">>, <<"refresh_token">>}, {<<"refresh_token">>, <<"sofresh">>}, {<<"client_id">>, Id}, {<<"client_secret">>, Secret}]};
 base_request(#client{grant_type = <<"gcp_client_credentials">>} = Client) ->
   #{headers => [{<<"Content-Type">>, <<"application/x-www-form-urlencoded">>}],
-    body => {form, [{<<"grant_type">>, <<"urn:ietf:params:oauth:grant-type:jwt-bearer">>}, {<<"assertion">>, jwt(Client)}]}};
+    body => [{<<"grant_type">>, <<"urn:ietf:params:oauth:grant-type:jwt-bearer">>}, {<<"assertion">>, jwt(Client)}]};
 base_request(#client{grant_type = GrantType}) ->
   #{headers => [], body => [{<<"grant_type">>, GrantType}]}.
 
