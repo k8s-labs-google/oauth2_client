@@ -347,26 +347,30 @@ add_client(Request0, Client, Opts) ->
   #client{id = Id, secret = Secret} = Client,
   case
     {Client#client.grant_type =:= <<"password">>,
-     Client#client.grant_type =:= <<"azure_client_credentials">> orelse
+     Client#client.grant_type =:= <<"azure_client_credentials">>,
+     Client#client.grant_type =:= <<"gcp_client_credentials">> orelse
      proplists:get_value(credentials_in_body, Opts, false)}
   of
-    {false, false} ->
+    {false, false, false} ->
       #{headers := Headers0} = Request0,
       Auth = base64:encode(<<Id/binary, ":", Secret/binary>>),
       Headers = [{<<"Authorization">>, <<"Basic ", Auth/binary>>}
                  | Headers0],
       Request0#{headers => Headers};
-    {false, true} ->
+    {false, true, false} ->
       #{body := Body} = Request0,
       Request0#{body => [{<<"client_id">>, Id},
                          {<<"client_secret">>, Secret}
                          | Body]};
+    {false, false, true} ->
+      % not entiresul sure we need these methods... ^
+      Request0;
     %% This clause is to still support password grant "as is" but
     %% in the future this should be changed in order to support
     %% client authentication in the password grant. Right now we
     %% are assuming that if the grant is password then the client is public
     %% which is not a fair assumption.
-    {true, _} ->
+    {true, _, _} ->
       #{body := Body} = Request0,
       Request0#{body => [{<<"username">>, Id},
                          {<<"password">>, Secret} | Body]}
