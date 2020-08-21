@@ -305,7 +305,10 @@ jwt(Client) ->
   % using records would be nice
   % #credentials_file{ <<"private_key">> = PrivateKey } = Data,
   Claims = claims(Data),
+  io:fwrite(Claims),
+  io:fwrite(PrivateKey),
   {ok, Token} = jwt:encode(<<"RS256">>, Claims, PrivateKey),
+  io:fwrite(Token),
   Token.
 
   % def get_access_token(:oauth_refresh, {account, scope}, _opts) do
