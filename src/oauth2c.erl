@@ -269,7 +269,7 @@ prepare_token_request(Client, Opts) ->
 claims(Data) ->
   % #credentials_file{ client_email = ClientEmail } = Data,
   ClientEmail = maps:get(<<"client_email">>, Data),
-  Scope = "trace",
+  Scope = "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/trace.append",
   #{
     <<"iss">> => ClientEmail,
     <<"scope">> => Scope,
