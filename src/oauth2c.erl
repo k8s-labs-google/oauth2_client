@@ -210,7 +210,7 @@ ensure_client_has_access_token(Client0, Options) ->
 do_retrieve_access_token(Client, Opts) ->
   #{headers := RequestHeaders,
     body := RequestBody} = prepare_token_request(Client, Opts),
-  io:fwrite(RequestBody),
+  io:fwrite(RequestHeaders),
   case restc:request(post, percent, Client#client.auth_url,
                      [200], RequestHeaders, RequestBody, Opts)
   of
@@ -306,7 +306,7 @@ jwt(Client) ->
   % using records would be nice
   % #credentials_file{ <<"private_key">> = PrivateKey } = Data,
   Claims = claims(Data),
-  % io:fwrite(Claims),
+  io:fwrite(Claims),
   % io:fwrite(PrivateKey),
   {ok, Token} = jwt:encode(<<"RS256">>, Claims, PrivateKey),
   % io:fwrite(Token),
