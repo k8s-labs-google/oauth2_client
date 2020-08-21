@@ -415,7 +415,8 @@ add_auth_header(Headers, #client{grant_type = <<"azure_client_credentials">>,
   [AH | proplists:delete(<<"Authorization">>, Headers)];
 add_auth_header(Headers, #client{grant_type = <<"gcp_client_credentials">>,
                                  access_token = AccessToken}) ->
-  AH = {<<"Authorization">>, <<"bearer ", AccessToken/binary>>},
+  % io:fwrite(AccessToken),
+  AH = {<<"Authorization">>, <<"Bearer ", AccessToken/binary>>},
   [AH | proplists:delete(<<"Authorization">>, Headers)];
 add_auth_header(Headers, #client{token_type = bearer,
                                  access_token = AccessToken}) ->
