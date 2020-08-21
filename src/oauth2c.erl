@@ -271,12 +271,14 @@ claims(Data) ->
   % #credentials_file{ client_email = ClientEmail } = Data,
   ClientEmail = maps:get(<<"client_email">>, Data),
   Scope = <<"https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/trace.append">>,
+  {MegaSecs, Secs, _} = erlang:timestamp(),
+  UnixTime = MegaSecs * 1000000 + Secs,
   #{
     <<"iss">> => ClientEmail,
     <<"scope">> => Scope,
     <<"aud">> => <<"https://www.googleapis.com/oauth2/v4/token">>,
-    <<"iat">> => erlang:system_time(second),
-    <<"exp">> => erlang:system_time() + 3600
+    <<"iat">> => UnixTime,
+    <<"exp">> => UnixTime + 3600
   }.
 
   % def jwt(info, opts \\ [])
