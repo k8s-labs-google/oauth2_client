@@ -275,8 +275,8 @@ claims(Data) ->
     <<"iss">> => ClientEmail,
     <<"scope">> => Scope,
     <<"aud">> => <<"https://www.googleapis.com/oauth2/v4/token">>,
-    <<"iat">> => erlang:system_time(),
-    <<"exp">> => erlang:system_time() + 10
+    <<"iat">> => erlang:system_time(second),
+    <<"exp">> => erlang:system_time() + 3600
   }.
 
   % def jwt(info, opts \\ [])
